@@ -1,4 +1,4 @@
-pipeline {
+ pipeline {
     agent any
     
     tools{
@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Git Checkout ') {
             steps {
-                git 'https://github.com/jaiswaladi246/DotNet-DEMO.git'
+                git changelog: false, poll: false, url: 'https://github.com/harishasapu/DotNet-DEMO.git'
             }
         }
         
@@ -34,41 +34,44 @@ pipeline {
         stage('Sonarqube Analysis') {
             steps {
                 
-                withSonarQubeEnv('sonar'){
+                withSonarQubeEnv('SonarQube'){
                   sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=dotnet-demo \
                     -Dsonar.projectKey=dotnet-demo ''' 
                }
-                
-               
             }
         }
-        
-        stage('Docker Build & Tag') {
-            steps {
+        stage("Docker Build & Tag"){
+            steps{
                 script{
-                    withDockerRegistry(credentialsId: 'docker-cred') {
+                    withDockerRegistry(credentialsId: 'docker-cred'){
                         sh "make image"
                     }
                 }
             }
         }
-        
-        stage('Docker Push') {
-            steps {
+        stage("Docker Push"){
+            steps{
                 script{
-                    withDockerRegistry(credentialsId: 'docker-cred') {
+                    withDockerRegistry(credentialsId: 'docker-cred'){
                         sh "make push"
                     }
                 }
             }
         }
-        
-        stage('Docker Deploy') {
-            steps {
-                sh "docker run -d -p 5000:5000 adijaiswal/dotnet-demoapp"
+        stage("Docker Deploy"){
+            steps{
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred'){
+                        sh "docker run -d --name dotnetapp -p 5000:5000 harishasapu/dotnet-demoapp"
+                    }
+                }
             }
         }
-        
-        
     }
 }
+
+
+## make sure you need to install make
+## sudo yum install make
+## git hub Repo link = https://github.com/harishasapu/DotNet-DEMO.git
+## you need to change your user name in makefile
