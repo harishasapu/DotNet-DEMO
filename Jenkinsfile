@@ -69,9 +69,3 @@
         }
     }
 }
-
-
-## make sure you need to install make
-## sudo yum install make
-## git hub Repo link = https://github.com/harishasapu/DotNet-DEMO.git
-## you need to change your user name in makefile
